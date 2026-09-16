@@ -25,3 +25,8 @@ replay_pid*
 
 # graphify-axet
 .graphify/
+
+# Banco H2 local
+/data/
+*.mv.db
+*.trace.db
