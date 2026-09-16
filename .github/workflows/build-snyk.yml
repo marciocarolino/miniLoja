@@ -1,0 +1,36 @@
+name: Build e Snyk
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-e-seguranca:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Dar permissão ao Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Compilar e executar testes
+        run: ./mvnw verify
+
+      - name: Instalar Snyk CLI
+        run: npm install --global snyk
+
+      - name: Verificar vulnerabilidades com Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --file=pom.xml --package-manager=maven --severity-threshold=high
