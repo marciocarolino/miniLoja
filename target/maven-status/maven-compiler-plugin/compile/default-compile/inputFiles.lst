@@ -1,9 +1,12 @@
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\controller\AuthController.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\controller\UserAccountController.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\RegisterRequest.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\RegisterResponse.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\model\UserAccount.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\repository\UserAccountRepository.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\service\AuthService.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\service\UserAccountQueryService.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\exception\ApiError.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\exception\GlobalExceptionHandler.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\config\SecurityConfig.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\MinilojaApplication.java

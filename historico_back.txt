@@ -57,3 +57,54 @@ Implementado backend de cadastro de usuário (Spring Boot) conforme a tela “Cr
 - 2026-09-16 18:17:13 -03:00 - Criado handler global GlobalExceptionHandler.
 - 2026-09-16 18:20:46 -03:00 - Criada configuração SecurityConfig liberando Swagger e `/api/auth/register` (CSRF desabilitado para testes).
 - 2026-09-16 18:22:52 -03:00 - Validado via Swagger: execução do POST `/api/auth/register` retornando **201 Created**.
+- 2026-09-16 20:00:28 -03:00 - Atualizado repositório: UserAccountRepository (adicionado findByEmailIgnoreCase).
+- 2026-09-16 20:00:39 -03:00 - Criado controller de consulta: UserAccountController (GET /api/users e GET /api/users?email=...).
+- 2026-09-16 20:00:48 -03:00 - Criado service de consulta: UserAccountQueryService (listAll e getByEmail) e validado via curl:
+  - GET /api/users -> HTTP 200
+  - GET /api/users?email=rodrigo@mercadinhoesperanca.com.br -> HTTP 200
+
+---
+
+# Task Completed
+2026-09-16 20:02:37 -03:00
+
+## Resumo final
+
+Implementados endpoints GET para consulta de usuários cadastrados, incluindo listagem completa e busca por e-mail, mantendo o padrão de camadas separadas (Controller + Service) e com documentação automática no Swagger/OpenAPI.
+
+## Endpoints e camadas criadas/alteradas
+
+- Controller: `src/main/java/com/miniloja/auth/controller/UserAccountController.java`
+  - `GET /api/users` — Lista todos os usuários cadastrados (retorna `List<RegisterResponse>`)
+  - `GET /api/users/by-email?email=...` — Busca usuário pelo e-mail (retorna `RegisterResponse`)
+- Service: `src/main/java/com/miniloja/auth/service/UserAccountQueryService.java`
+  - `listAll()` — Consulta todos via repositório ordenando por `id` desc e mapeia para `RegisterResponse`
+  - `getByEmail(email)` — Normaliza e valida e-mail, busca por e-mail ignore case e mapeia para `RegisterResponse`
+- Persistência (Repository atualizado):
+  - `src/main/java/com/miniloja/auth/repository/UserAccountRepository.java`
+    - Mantido: `existsByEmailIgnoreCase(String email)`
+    - Adicionado: `findByEmailIgnoreCase(String email)`
+
+## Histórico (completo)
+
+- 2026-09-16 20:00:28 -03:00 - Atualizado repositório `UserAccountRepository`: adicionado método `findByEmailIgnoreCase(String email)` para suportar consulta por e-mail.
+- 2026-09-16 20:00:39 -03:00 - Criado controller `UserAccountController` com rotas:
+  - `GET /api/users`
+  - `GET /api/users/by-email?email=...`
+- 2026-09-16 20:00:48 -03:00 - Criado service `UserAccountQueryService` com métodos `listAll` e `getByEmail`.
+- 2026-09-16 20:00:48 -03:00 - Validação manual via HTTP (curl):
+  - `GET http://localhost:8080/api/users` → **HTTP 200** (retornou lista JSON de usuários)
+  - `GET http://localhost:8080/api/users/by-email?email=rodrigo@mercadinhoesperanca.com.br` → **HTTP 200** (retornou JSON do usuário)
+
+## Observações técnicas
+
+- Os retornos reutilizam o DTO `RegisterResponse` para não expor campos sensíveis (ex.: hash da senha).
+- A busca por e-mail é `ignore case` e retorna erro via `IllegalArgumentException` quando não encontrado (tratado pelo `GlobalExceptionHandler`).
+- Os endpoints aparecem automaticamente no Swagger devido às anotações `@Operation` e `@Tag`.
+
+## Validação (comandos)
+
+- Listar:
+  - `curl http://localhost:8080/api/users`
+- Buscar por e-mail:
+  - `curl "http://localhost:8080/api/users/by-email?email=rodrigo@mercadinhoesperanca.com.br"`
