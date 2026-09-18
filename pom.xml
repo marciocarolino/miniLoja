@@ -37,6 +37,19 @@
 				<artifactId>jackson-databind</artifactId>
 				<version>2.21.6</version>
 			</dependency>
+
+			<!-- Mitigação Snyk: CVE-2026-19880 / SNYK-JAVA-CHQOSLOGBACK-19882330
+			     IMPORTANTE: manter logback-core e logback-classic na MESMA versão -->
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-core</artifactId>
+				<version>1.6.3</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>1.6.3</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
