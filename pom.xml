@@ -28,18 +28,11 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<jackson.version>2.21.6</jackson.version>
 	</properties>
 	<dependencies>
 
-		<!-- Corrige vulnerabilidade trazida pelo Springdoc / Swagger -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.21.6</version>
-		</dependency>
-
-		<!-- Corrige vulnerabilidade trazida pelo Spring Boot 4 -->
+		<!-- Override Jackson do ecossistema usado pelo Spring Boot 4 (tools.jackson.*).
+		     Manter apenas UMA linha de Jackson para evitar conflitos com com.fasterxml.* -->
 		<dependency>
 			<groupId>tools.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
