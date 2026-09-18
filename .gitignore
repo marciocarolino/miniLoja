@@ -30,3 +30,6 @@ replay_pid*
 /data/
 *.mv.db
 *.trace.db
+
+
+*.axet
