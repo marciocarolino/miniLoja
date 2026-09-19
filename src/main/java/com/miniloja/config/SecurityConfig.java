@@ -16,25 +16,28 @@ public class SecurityConfig {
         // Para clientes web (browser), o token será exposto em cookie (XSRF-TOKEN) e deve ser
         // enviado no header X-XSRF-TOKEN em requests mutáveis (POST/PUT/PATCH/DELETE).
         // Observação: Swagger UI e outros clientes precisarão enviar o header, caso contrário receberão 403.
-        //
-        // Mantemos httpBasic/formLogin/logout desabilitados; atualmente os endpoints estão liberados via permitAll,
-        // então isso é apenas a base para endurecer segurança futuramente.
-        return http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers(
-                                                "/swagger-ui.html",
-                                                "/swagger-ui/**",
-                                                "/v3/api-docs/**",
-                                                "/api/auth/register",
-                                                "/actuator/health",
-                                                "/actuator/info")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .permitAll())
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable())
-                .build();
+        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+
+        // Endpoints liberados via permitAll (fase inicial do projeto).
+        http.authorizeHttpRequests(
+                auth ->
+                        auth.requestMatchers(
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/api/auth/register",
+                                        "/actuator/health",
+                                        "/actuator/info")
+                                .permitAll()
+                                .anyRequest()
+                                .permitAll());
+
+        // Desabilita qualquer forma de login/autenticação embutida do Spring Security
+        // (mantemos apenas as permissões dos endpoints acima).
+        http.httpBasic(httpBasic -> httpBasic.disable());
+        http.formLogin(form -> form.disable());
+        http.logout(logout -> logout.disable());
+
+        return http.build();
     }
 }
