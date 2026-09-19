@@ -16,7 +16,11 @@ public class SecurityConfig {
         // - desabilita CSRF (senão POST via swagger/cliente falha sem token CSRF)
         // Desabilita qualquer forma de login (inclusive tela de login do Spring Security),
         // mantendo apenas as permissões dos endpoints.
-        return http.csrf(csrf -> csrf.disable())
+        return http.csrf(csrf -> csrf.ignoringRequestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/api/**"))
                 .authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers(
