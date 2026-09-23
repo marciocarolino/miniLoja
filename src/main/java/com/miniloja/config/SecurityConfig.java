@@ -1,24 +1,30 @@
 package com.miniloja.config;
 
+import com.miniloja.auth.security.JwtAuthFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
+    private final JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // CSRF habilitado (mitiga CWE-352 / finding do Snyk Code).
-        // Para clientes web (browser), o token será exposto em cookie (XSRF-TOKEN) e deve ser
-        // enviado no header X-XSRF-TOKEN em requests mutáveis (POST/PUT/PATCH/DELETE).
-        // Observação: Swagger UI e outros clientes precisarão enviar o header, caso contrário receberão 403.
-        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+        // JWT: APIs stateless -> CSRF desabilitado (não há sessão/cookie para autenticação).
+        http.csrf(csrf -> csrf.disable());
 
-        // Endpoints liberados via permitAll (fase inicial do projeto).
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         http.authorizeHttpRequests(
                 auth ->
                         auth.requestMatchers(
@@ -26,17 +32,18 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/api/auth/register",
+                                        "/api/auth/login",
                                         "/actuator/health",
                                         "/actuator/info")
                                 .permitAll()
                                 .anyRequest()
-                                .permitAll());
+                                .authenticated());
 
-        // Desabilita qualquer forma de login/autenticação embutida do Spring Security
-        // (mantemos apenas as permissões dos endpoints acima).
         http.httpBasic(httpBasic -> httpBasic.disable());
         http.formLogin(form -> form.disable());
         http.logout(logout -> logout.disable());
+
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

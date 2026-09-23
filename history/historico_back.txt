@@ -108,3 +108,68 @@ Implementados endpoints GET para consulta de usuários cadastrados, incluindo li
   - `curl http://localhost:8080/api/users`
 - Buscar por e-mail:
   - `curl "http://localhost:8080/api/users/by-email?email=rodrigo@mercadinhoesperanca.com.br"`
+
+Task Completed - 23/09/2026 09:05:02
+Tarefa: ML02-10 — CRUD de usuários + login JWT + soft delete (ativado)
+Card Jira: ML02-10
+Agente: Agente de Implementação Back-end Spring
+
+Resumo da implementação
+
+- Adicionado campo `ativado` em `UserAccount` (default true).
+- Implementado login via e-mail e senha com retorno de JWT (endpoint `POST /api/auth/login`).
+- Ajustada segurança para API stateless com filtro JWT e exigência de autenticação para endpoints fora de `/api/auth/*` e Swagger/Actuator health/info.
+- Implementado CRUD de usuários:
+  - listagem e busca por e-mail retornam apenas usuários ativos;
+  - atualização de dados básicos (nome, email, telefone);
+  - desativação/reativação (soft delete) via endpoints dedicados.
+
+Arquivos criados ou alterados
+
+- src/main/java/com/miniloja/auth/model/UserAccount.java: adicionado campo `ativado`.
+- src/main/java/com/miniloja/auth/service/AuthService.java: adicionado método `login()` e ajuste no `register()` para iniciar `ativado=true`.
+- src/main/java/com/miniloja/auth/controller/AuthController.java: adicionado endpoint `POST /api/auth/login`.
+- src/main/java/com/miniloja/auth/security/JwtService.java: geração e validação de JWT (HMAC SHA-256) com TTL padrão 2h (secret default apenas dev).
+- src/main/java/com/miniloja/auth/security/JwtAuthFilter.java: filtro JWT para autenticar via header `Authorization: Bearer <token>`.
+- src/main/java/com/miniloja/config/SecurityConfig.java: configurado stateless + filtro JWT + endpoints permitAll.
+- src/main/java/com/miniloja/auth/dto/LoginRequest.java: DTO do login.
+- src/main/java/com/miniloja/auth/dto/LoginResponse.java: DTO de resposta do login.
+- src/main/java/com/miniloja/auth/dto/UserUpdateRequest.java: DTO de atualização de usuário.
+- src/main/java/com/miniloja/auth/service/UserAccountCommandService.java: service de update/ativar/desativar.
+- src/main/java/com/miniloja/auth/service/UserAccountQueryService.java: listagem/busca filtrando por `ativado=true`.
+- src/main/java/com/miniloja/auth/repository/UserAccountRepository.java: adicionado `findByEmailIgnoreCaseAndAtivadoTrue`.
+- docs/endpoints.md: documentado login JWT e endpoints de usuários (CRUD + soft delete) e atualizado "Última atualização".
+
+Endpoints criados ou alterados
+
+- POST /api/auth/login: autentica via e-mail e senha e retorna JWT.
+- GET /api/users: agora retorna apenas usuários ativos e exige Bearer JWT.
+- GET /api/users/by-email?email=...: agora retorna apenas usuário ativo e exige Bearer JWT.
+- PUT /api/users/{id}: atualiza nome/email/telefone (Bearer JWT).
+- POST /api/users/{id}/deactivate: desativa usuário (soft delete) (Bearer JWT).
+- POST /api/users/{id}/activate: reativa usuário (Bearer JWT).
+
+Regras e validações aplicadas
+
+- Usuário é criado com `ativado=true`.
+- Login só autentica usuário ativo (`findByEmailIgnoreCaseAndAtivadoTrue`).
+- Listagens/consultas públicas de usuário foram mantidas somente para usuários ativos (soft delete não aparece).
+- Payloads de login e update possuem validações Bean Validation (`@Valid`).
+
+Testes executados
+
+- Comando: .\mvnw.cmd clean test
+- Resultado: BUILD SUCCESS (1 teste executado, 0 falhas)
+- Testes criados ou alterados: Nenhum teste novo; apenas execução da suíte existente para regressão.
+
+Documentação atualizada
+
+- docs/endpoints.md: adicionadas seções de Autenticação (login JWT) e Usuários (CRUD + soft delete), e atualizado "Última atualização".
+
+Pendências, riscos ou próximos passos
+
+- O `JwtService` usa uma secret hardcoded para desenvolvimento (`DEFAULT_DEV_SECRET`). Próximo passo recomendado: ler secret de variável de ambiente (ex.: `MINILOJA_JWT_SECRET`) e configurar por profile.
+- O login retorna 400 via `IllegalArgumentException` para credenciais inválidas (depende do `GlobalExceptionHandler`). Recomenda-se padronizar para 401 Unauthorized (ajuste no handler) em uma próxima melhoria.
+- Ainda não existem roles/perfis (ex.: ADMIN) aplicados; os endpoints estão protegidos por autenticação, não por autorização.
+
+------------------------------------------------------------

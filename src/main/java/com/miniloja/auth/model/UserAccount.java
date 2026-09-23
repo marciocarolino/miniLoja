@@ -28,6 +28,9 @@ public class UserAccount {
     @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
 
+    @Column(name = "ativado", nullable = false)
+    private boolean ativado = true;
+
     @Column(name = "aceitou_termos", nullable = false)
     private boolean aceitouTermos;
 
@@ -75,6 +78,14 @@ public class UserAccount {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public boolean isAtivado() {
+        return ativado;
+    }
+
+    public void setAtivado(boolean ativado) {
+        this.ativado = ativado;
     }
 
     public boolean isAceitouTermos() {

@@ -1,9 +1,12 @@
 package com.miniloja.auth.service;
 
+import com.miniloja.auth.dto.LoginRequest;
+import com.miniloja.auth.dto.LoginResponse;
 import com.miniloja.auth.dto.RegisterRequest;
 import com.miniloja.auth.dto.RegisterResponse;
 import com.miniloja.auth.model.UserAccount;
 import com.miniloja.auth.repository.UserAccountRepository;
+import com.miniloja.auth.security.JwtService;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,10 +18,33 @@ public class AuthService {
 
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UserAccountRepository userAccountRepository) {
+    public AuthService(UserAccountRepository userAccountRepository, JwtService jwtService) {
         this.userAccountRepository = userAccountRepository;
+        this.jwtService = jwtService;
         this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest request) {
+        String emailNorm = request.email() == null ? null : request.email().trim();
+
+        if (emailNorm == null || emailNorm.isBlank()) {
+            throw new IllegalArgumentException("email é obrigatório");
+        }
+
+        UserAccount user =
+                userAccountRepository
+                        .findByEmailIgnoreCaseAndAtivadoTrue(emailNorm)
+                        .orElseThrow(() -> new IllegalArgumentException("Usuário ou senha inválidos."));
+
+        if (!passwordEncoder.matches(request.senha(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Usuário ou senha inválidos.");
+        }
+
+        String token = jwtService.generateToken(user.getEmail());
+        return new LoginResponse("Bearer", token);
     }
 
     @Transactional
@@ -46,6 +72,7 @@ public class AuthService {
         user.setEmail(emailNorm);
         user.setTelefone(request.telefone());
         user.setAceitouTermos(true);
+        user.setAtivado(true);
         user.setPasswordHash(passwordEncoder.encode(request.senha()));
 
         UserAccount saved = userAccountRepository.save(user);

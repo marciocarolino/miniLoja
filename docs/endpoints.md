@@ -4,7 +4,7 @@
 >
 > Regra: os agentes de front-end devem consultar este arquivo antes de criar chamadas HTTP, telas, formulários ou integrações com a API.
 >
-> Última atualização: DATA_ATUAL
+> Última atualização: 23/09/2026
 
 ## Informações gerais
 
@@ -13,6 +13,99 @@
 - Formato padrão de resposta: `application/json`
 - Autenticação: definir conforme implementação do Spring Security.
 - Documentação interativa, quando disponível: `/swagger-ui/index.html`
+
+## Autenticação
+
+> Status: Implementado.
+
+### Login (JWT)
+
+- Status: Implementado
+- Método: `POST`
+- Rota: `/api/auth/login`
+- Autenticação: não (endpoint público)
+- Objetivo: autentica via e-mail e senha e retorna um token JWT para uso em endpoints protegidos.
+
+#### Payload esperado
+
+```json
+{
+  "email": "rodrigo@mercadinhoesperanca.com.br",
+  "senha": "Abcdef12"
+}
+```
+
+#### Resposta esperada — 200 OK
+
+```json
+{
+  "tokenType": "Bearer",
+  "accessToken": "<jwt>"
+}
+```
+
+#### Possíveis erros
+
+|  Status | Quando ocorre                                                        |
+| ------: | -------------------------------------------------------------------- |
+|     400 | Payload inválido (validações)                                        |
+| 401/403 | Credenciais inválidas ou usuário desativado (conforme implementação) |
+
+---
+
+## Usuários
+
+> Status: Implementado.
+
+### Cadastrar usuário
+
+- Status: Implementado
+- Método: `POST`
+- Rota: `/api/auth/register`
+- Autenticação: não (endpoint público — fase inicial)
+- Objetivo: cria um usuário (inicia com `ativado=true`).
+
+### Listar usuários ativos
+
+- Status: Implementado
+- Método: `GET`
+- Rota: `/api/users`
+- Autenticação: sim (Bearer JWT)
+- Objetivo: lista usuários ativos.
+
+### Buscar usuário ativo por e-mail
+
+- Status: Implementado
+- Método: `GET`
+- Rota: `/api/users/by-email?email=...`
+- Autenticação: sim (Bearer JWT)
+- Objetivo: busca usuário ativo pelo e-mail.
+
+### Atualizar usuário
+
+- Status: Implementado
+- Método: `PUT`
+- Rota: `/api/users/{id}`
+- Autenticação: sim (Bearer JWT)
+- Objetivo: atualiza nome, e-mail e telefone.
+
+### Desativar usuário (soft delete)
+
+- Status: Implementado
+- Método: `POST`
+- Rota: `/api/users/{id}/deactivate`
+- Autenticação: sim (Bearer JWT)
+- Objetivo: desativa um usuário (`ativado=false`). Usuário desativado não autentica.
+
+### Reativar usuário
+
+- Status: Implementado
+- Método: `POST`
+- Rota: `/api/users/{id}/activate`
+- Autenticação: sim (Bearer JWT)
+- Objetivo: reativa um usuário (`ativado=true`).
+
+---
 
 ## Convenções de resposta
 

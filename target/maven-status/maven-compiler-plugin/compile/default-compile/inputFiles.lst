@@ -1,10 +1,16 @@
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\controller\AuthController.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\controller\UserAccountController.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\LoginRequest.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\LoginResponse.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\RegisterRequest.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\RegisterResponse.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\dto\UserUpdateRequest.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\model\UserAccount.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\repository\UserAccountRepository.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\security\JwtAuthFilter.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\security\JwtService.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\service\AuthService.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\service\UserAccountCommandService.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\service\UserAccountQueryService.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\exception\ApiError.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\exception\GlobalExceptionHandler.java
