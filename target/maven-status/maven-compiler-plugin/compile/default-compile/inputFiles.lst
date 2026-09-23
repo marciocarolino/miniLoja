@@ -14,5 +14,8 @@ C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\servi
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\auth\service\UserAccountQueryService.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\exception\ApiError.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\exception\GlobalExceptionHandler.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\ratelimit\RateLimitFilter.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\ratelimit\RateLimitRedisRepository.java
+C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\common\ratelimit\RateLimitService.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\config\SecurityConfig.java
 C:\Users\marci\Documents\Projetos\miniLoja\src\main\java\com\miniloja\MinilojaApplication.java

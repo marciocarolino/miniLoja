@@ -172,4 +172,44 @@ Pendências, riscos ou próximos passos
 - O login retorna 400 via `IllegalArgumentException` para credenciais inválidas (depende do `GlobalExceptionHandler`). Recomenda-se padronizar para 401 Unauthorized (ajuste no handler) em uma próxima melhoria.
 - Ainda não existem roles/perfis (ex.: ADMIN) aplicados; os endpoints estão protegidos por autenticação, não por autorização.
 
+Task Completed - 23/09/2026 09:13:05
+Tarefa: ML02-10 — Rate limit (login por IP + demais endpoints por usuário JWT)
+Card Jira: ML02-10
+Agente: Agente de Segurança / Back-end
+
+Diagnóstico / Resultado
+
+Implementado rate limit simples em memória para reduzir abuso:
+- `POST /api/auth/login`: 10 req/min por IP.
+- Endpoints autenticados: 120 req/min por usuário autenticado (email do JWT).
+
+Evidências encontradas
+
+- Política confirmada pelo usuário: "login 10/min por IP; demais 120/min por usuário".
+- Arquivos adicionados/alterados:
+  - Criado `src/main/java/com/miniloja/common/ratelimit/RateLimitService.java` (janela fixa em memória).
+  - Criado `src/main/java/com/miniloja/common/ratelimit/RateLimitFilter.java` (aplica rate limit).
+  - Alterado `src/main/java/com/miniloja/config/SecurityConfig.java` (inclusão do filter após JWT).
+  - Alterado `docs/endpoints.md` (documentação do rate limit e 429).
+  - Criado `src/test/java/com/miniloja/common/ratelimit/RateLimitServiceTest.java` (2 testes unitários).
+- Comandos executados e resultado:
+  - `.\mvnw.cmd clean test` → BUILD SUCCESS (3 testes, 0 falhas)
+
+Análise detalhada
+
+- Implementação em memória é adequada para desenvolvimento / instância única.
+- Para ambiente com múltiplas instâncias, a contagem precisa ser distribuída (ex.: Redis) para evitar bypass por “round-robin”.
+- Por padrão, IP é obtido via `request.getRemoteAddr()`; headers como `X-Forwarded-For` não são confiados sem configuração explícita do ambiente (evita spoofing).
+- Quando excede o limite, a API responde `429 Too Many Requests` e inclui `Retry-After` (quando calculável).
+
+Plano / Próximos passos
+
+1. (Opcional) Implementar backend distribuído (Redis) caso exista necessidade de múltiplas instâncias.
+2. (Opcional) Ajustar resolução de IP com suporte a proxy/ingress via configuração segura (ForwardedHeaderFilter).
+3. (Opcional) Criar teste de integração (MockMvc) validando 429 no endpoint `/api/auth/login`.
+
+Pendências ou dúvidas
+
+- Nenhuma pendência identificada.
+
 ------------------------------------------------------------

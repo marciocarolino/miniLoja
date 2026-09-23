@@ -1,6 +1,7 @@
 package com.miniloja.config;
 
 import com.miniloja.auth.security.JwtAuthFilter;
+import com.miniloja.common.ratelimit.RateLimitFilter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +14,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final RateLimitFilter rateLimitFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, RateLimitFilter rateLimitFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -44,6 +47,9 @@ public class SecurityConfig {
         http.logout(logout -> logout.disable());
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Rate limit deve rodar depois do JWT para conseguir limitar por usuário autenticado.
+        http.addFilterAfter(rateLimitFilter, JwtAuthFilter.class);
 
         return http.build();
     }

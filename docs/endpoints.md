@@ -18,6 +18,13 @@
 
 > Status: Implementado.
 
+### Rate limit (anti abuso)
+
+- `POST /api/auth/login`: **10 requisições por minuto por IP**.
+- Endpoints autenticados (ex.: `/api/users/**`): **120 requisições por minuto por usuário autenticado (subject/email do JWT)**.
+- Ao exceder: API retorna `429 Too Many Requests` e pode enviar header `Retry-After`.
+- Implementação: **Redis (rate limit distribuído)** com fallback em memória caso Redis esteja indisponível (dev).
+
 ### Login (JWT)
 
 - Status: Implementado
