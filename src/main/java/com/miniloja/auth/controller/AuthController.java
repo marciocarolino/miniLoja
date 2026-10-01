@@ -1,5 +1,7 @@
 package com.miniloja.auth.controller;
 
+import com.miniloja.auth.dto.LoginRequest;
+import com.miniloja.auth.dto.LoginResponse;
 import com.miniloja.auth.dto.RegisterRequest;
 import com.miniloja.auth.dto.RegisterResponse;
 import com.miniloja.auth.service.AuthService;
@@ -21,6 +23,12 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "Login", description = "Autentica via e-mail e senha e retorna um token JWT")
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 
     @PostMapping("/register")

@@ -22,6 +22,7 @@ public class UserAccountQueryService {
     @Transactional(readOnly = true)
     public List<RegisterResponse> listAll() {
         return userAccountRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+                .filter(UserAccount::isAtivado)
                 .map(this::toResponse)
                 .toList();
     }
@@ -36,6 +37,7 @@ public class UserAccountQueryService {
         UserAccount user =
                 userAccountRepository
                         .findByEmailIgnoreCase(emailNorm)
+                        .filter(UserAccount::isAtivado)
                         .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado para o e-mail informado."));
 
         return toResponse(user);

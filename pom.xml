@@ -96,6 +96,12 @@
 			<version>3.1.1</version>
 		</dependency>
 
+		<!-- Rate limit distribuído (Redis) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
