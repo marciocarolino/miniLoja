@@ -42,6 +42,16 @@
 				<artifactId>jackson-core</artifactId>
 				<version>2.22.3</version>
 			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-yaml</artifactId>
+				<version>2.22.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jsr310</artifactId>
+				<version>2.22.3</version>
+			</dependency>
 
 			<!-- Mitigação ML02-13 (Snyk: SNYK-JAVA-TOOLSJACKSONCORE-20059682):
 			     manter tools.jackson.core:jackson-core >= tools.jackson.core:jackson-databind -->
