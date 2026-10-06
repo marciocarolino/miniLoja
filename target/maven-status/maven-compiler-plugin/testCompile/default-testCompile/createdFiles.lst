@@ -1,1 +1,8 @@
+com\miniloja\common\ratelimit\RateLimitRedisRepositoryTest.class
+com\miniloja\auth\security\JwtServiceTest.class
+com\miniloja\common\ratelimit\RateLimitServiceTest$1.class
 com\miniloja\MinilojaApplicationTests.class
+com\miniloja\common\ratelimit\RateLimitRedisRepositoryTest$1StubClient.class
+com\miniloja\common\ratelimit\RateLimitServiceTest$1MutableClock.class
+com\miniloja\common\ratelimit\RateLimitServiceTest$1State.class
+com\miniloja\common\ratelimit\RateLimitServiceTest.class

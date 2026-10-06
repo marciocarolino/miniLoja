@@ -32,10 +32,45 @@
 	<dependencyManagement>
 		<dependencies>
 			<!-- Correção de vulnerabilidade transitiva trazida por springdoc/swagger (Jackson 2.x) -->
+
+			<!-- Correção Snyk (ML02-21..ML02-25): Tomcat embed-core trazido por spring-boot-starter-tomcat -->
+			<dependency>
+				<groupId>org.apache.tomcat.embed</groupId>
+				<artifactId>tomcat-embed-core</artifactId>
+				<version>11.0.25</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tomcat.embed</groupId>
+				<artifactId>tomcat-embed-websocket</artifactId>
+				<version>11.0.25</version>
+			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.21.6</version>
+				<version>2.22.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>2.22.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-yaml</artifactId>
+				<version>2.22.3</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jsr310</artifactId>
+				<version>2.22.3</version>
+			</dependency>
+
+			<!-- Mitigação ML02-13 (Snyk: SNYK-JAVA-TOOLSJACKSONCORE-20059682):
+			     manter tools.jackson.core:jackson-core >= tools.jackson.core:jackson-databind -->
+			<dependency>
+				<groupId>tools.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>3.2.3</version>
 			</dependency>
 
 			<!-- Mitigação Snyk: CVE-2026-19880 / SNYK-JAVA-CHQOSLOGBACK-19882330
@@ -60,7 +95,7 @@
 		<dependency>
 			<groupId>tools.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>3.1.6</version>
+			<version>3.2.3</version>
 		</dependency>
 
 		<dependency>
@@ -94,6 +129,12 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>3.1.1</version>
+		</dependency>
+
+		<!-- Rate limit distribuído (Redis) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 
 		<dependency>
