@@ -35,12 +35,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.21.6</version>
+				<version>2.22.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.21.6</version>
+				<version>2.22.3</version>
 			</dependency>
 
 			<!-- Mitigação ML02-13 (Snyk: SNYK-JAVA-TOOLSJACKSONCORE-20059682):
