@@ -38,6 +38,14 @@
 				<version>2.21.6</version>
 			</dependency>
 
+			<!-- Mitigação ML02-13 (Snyk: SNYK-JAVA-TOOLSJACKSONCORE-20059682):
+			     manter tools.jackson.core:jackson-core >= tools.jackson.core:jackson-databind -->
+			<dependency>
+				<groupId>tools.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>3.1.6</version>
+			</dependency>
+
 			<!-- Mitigação Snyk: CVE-2026-19880 / SNYK-JAVA-CHQOSLOGBACK-19882330
 			     IMPORTANTE: manter logback-core e logback-classic na MESMA versão -->
 			<dependency>
