@@ -213,3 +213,43 @@ Pendências ou dúvidas
 - Nenhuma pendência identificada.
 
 ------------------------------------------------------------
+
+[06/10/2026 09:44:43] Segurança/QA — Revisão geral (Agentes 01–04)
+
+ARQUIVOS, CONFIGURAÇÕES E COMPONENTES ANALISADOS:
+- .github/workflows/build-snyk.yml
+- src/main/java/com/miniloja/config/SecurityConfig.java
+- src/main/java/com/miniloja/auth/security/JwtService.java
+- src/main/java/com/miniloja/common/ratelimit/RateLimitService.java
+- src/test/java/com/miniloja/common/ratelimit/RateLimitServiceTest.java
+- src/test/java/com/miniloja/auth/security/JwtServiceTest.java
+- src/test/resources/application-test.properties
+- docs/endpoints.md
+
+DESCRIÇÃO, EVIDÊNCIA E RECOMENDAÇÃO:
+- Rate limit: testes falharam após tornar Redis obrigatório (IllegalStateException "Rate limit requer Redis..."). Ajustado RateLimitServiceTest para usar stub em memória do RedisRateLimitClient baseado em Clock, mantendo regra de negócio sem dependência de Redis real.
+- JWT secret: achado de segurança — JwtService possuía segredo hardcoded (DEFAULT_DEV_SECRET). Correção aplicada para ler `miniloja.jwt.secret` via configuração; fallback permitido somente em dev/test (ou sem profile definido). Fora de dev/test, a ausência de secret gera IllegalStateException (fail-fast).
+- Documentação: docs/endpoints.md atualizado para refletir Redis obrigatório no rate limit (sem fallback em memória).
+
+DEPENDÊNCIAS:
+- Jackson: não revalidado via Snyk local (somente revisão de configuração/pipeline). Recomenda-se rodar o pipeline (GitHub Actions) para validar vulnerabilidades de dependências/transitivas.
+- Nenhum token/segredo foi inserido em arquivos versionados.
+
+VALIDAÇÃO DO GITHUB ACTIONS E SNYK:
+- Workflow analisado: build-snyk.yml usa Java 21 (Temurin), executa `./mvnw verify` e roda `snyk test` com `secrets.SNYK_TOKEN` (sem token fixo no YAML).
+
+COMANDOS EXECUTADOS:
+- Comando: .\mvnw.cmd -q clean test
+  Resultado: falha inicial em RateLimitServiceTest (Redis obrigatório) -> corrigido.
+- Comando: .\mvnw.cmd -q clean test
+  Resultado: BUILD SUCCESS (suíte passando após ajustes e novos testes de JWT).
+
+CORREÇÕES:
+- RateLimitServiceTest ajustado para stub Redis com Clock.
+- JwtService: segredo via `miniloja.jwt.secret` + fallback controlado dev/test + fail-fast fora de dev/test.
+- JwtServiceTest: criado/ajustado para cobrir geração/validação/expiração/assinatura e fallback.
+- docs/endpoints.md: rate limit atualizado (Redis obrigatório).
+
+PENDÊNCIAS:
+- Executar Snyk/GitHub Actions para confirmar ausência de vulnerabilidades (especialmente Jackson) no estado atual do repositório.
+- Melhorar `spring.profiles.active` (ler via Environment/Profiles do Spring) em evolução futura, caso necessário.

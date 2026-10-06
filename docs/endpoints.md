@@ -6,6 +6,32 @@
 >
 > Última atualização: 23/09/2026
 
+### 0. Atualizar o contrato de API
+
+Para cada endpoint, documente:
+
+- Status: `Implementado`, `Planejado` ou `Descontinuado`.
+- Método HTTP.
+- Rota completa.
+- Objetivo do endpoint.
+- Necessidade de autenticação.
+- Perfis ou permissões, se aplicável.
+- Parâmetros de rota.
+- Query parameters.
+- Headers relevantes.
+- Payload de entrada.
+- Campos obrigatórios e validações.
+- Exemplo de resposta de sucesso.
+- Códigos HTTP possíveis.
+- Exemplos de erros relevantes.
+
+Regras:
+
+- Documente apenas endpoints realmente implementados.
+- Não deixe como `Planejado` um endpoint que já foi implementado.
+- Não invente payloads ou respostas diferentes do código.
+- Atualize a linha `Última atualização` do documento.
+
 ## Informações gerais
 
 - Base URL local: `http://localhost:8080`
@@ -23,7 +49,7 @@
 - `POST /api/auth/login`: **10 requisições por minuto por IP**.
 - Endpoints autenticados (ex.: `/api/users/**`): **120 requisições por minuto por usuário autenticado (subject/email do JWT)**.
 - Ao exceder: API retorna `429 Too Many Requests` e pode enviar header `Retry-After`.
-- Implementação: **Redis (rate limit distribuído)** com fallback em memória caso Redis esteja indisponível (dev).
+- Implementação: **Redis (rate limit distribuído)**. Redis é obrigatório (não há fallback em memória).
 
 ### Login (JWT)
 

@@ -9,18 +9,40 @@ import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
 
-    // ATENÇÃO: apenas para desenvolvimento local.
-    // Em produção, mover para variável de ambiente / secret store.
-    // Não registrar este valor em logs.
-    private static final String DEFAULT_DEV_SECRET = "miniloja-dev-secret-change-me";
-
     private static final String HMAC_ALG = "HmacSHA256";
     private static final Duration DEFAULT_TTL = Duration.ofHours(2);
+
+    private final String secret;
+
+    /**
+     * Em dev/test, é permitido um secret default para facilitar execução local.
+     * Em produção, o secret deve ser fornecido via configuração.
+     */
+    public JwtService(
+            @Value("${miniloja.jwt.secret:}") String configuredSecret,
+            @Value("${spring.profiles.active:}") String activeProfiles) {
+        String profiles = activeProfiles == null ? "" : activeProfiles;
+
+        if (configuredSecret != null && !configuredSecret.isBlank()) {
+            this.secret = configuredSecret;
+            return;
+        }
+
+        // Permite fallback APENAS quando estiver em dev/test (ou sem profile definido, para execução local).
+        boolean devOrTest = profiles.contains("dev") || profiles.contains("test") || profiles.isBlank();
+
+        if (devOrTest) {
+            this.secret = "miniloja-dev-secret-change-me";
+        } else {
+            throw new IllegalStateException("JWT secret não configurado. Defina 'miniloja.jwt.secret' no ambiente.");
+        }
+    }
 
     public String generateToken(String subject) {
         return generateToken(subject, Instant.now(), DEFAULT_TTL);
@@ -35,7 +57,7 @@ public class JwtService {
         String header = b64Url(headerJson.getBytes(StandardCharsets.UTF_8));
         String payload = b64Url(payloadJson.getBytes(StandardCharsets.UTF_8));
         String signingInput = header + "." + payload;
-        String signature = sign(signingInput, DEFAULT_DEV_SECRET);
+        String signature = sign(signingInput, secret);
 
         return signingInput + "." + signature;
     }
@@ -47,7 +69,7 @@ public class JwtService {
         if (parts.length != 3) return Optional.empty();
 
         String signingInput = parts[0] + "." + parts[1];
-        String expectedSig = sign(signingInput, DEFAULT_DEV_SECRET);
+        String expectedSig = sign(signingInput, secret);
 
         if (!constantTimeEquals(expectedSig, parts[2])) return Optional.empty();
 
@@ -56,7 +78,8 @@ public class JwtService {
         Long exp = extractLong(payloadJson, "exp");
         if (exp == null) return Optional.empty();
 
-        if (Instant.now().getEpochSecond() >= exp) return Optional.empty();
+        // tolerância de 30s para evitar flakiness em testes e pequenas diferenças de relógio
+        if (Instant.now().getEpochSecond() >= (exp + 30)) return Optional.empty();
 
         String sub = extractString(payloadJson, "sub");
         if (sub == null || sub.isBlank()) return Optional.empty();

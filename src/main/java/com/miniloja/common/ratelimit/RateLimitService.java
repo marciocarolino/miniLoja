@@ -70,52 +70,18 @@ public class RateLimitService {
             return RateLimitResult.allow();
         }
 
-        // Preferência: Redis (distribuído). Se indisponível, fallback para memória (dev).
-        if (redisRepository != null) {
-            try {
-                var r = redisRepository.consume(key, window);
-                if (r.current() > maxRequests) {
-                    long retryAfterSeconds = r.ttlSeconds() == null ? 1 : Math.max(1, r.ttlSeconds());
-                    return RateLimitResult.block(retryAfterSeconds);
-                }
-                return RateLimitResult.allow();
-            } catch (RuntimeException e) {
-                // Fallback para memória se Redis estiver indisponível.
-            }
+        if (redisRepository == null) {
+            // Redis é obrigatório (dev/prod). Falhar de forma explícita evita divergência
+            // doc x comportamento e previne bypass involuntário do rate limit.
+            throw new IllegalStateException("Rate limit requer Redis, mas RateLimitRedisRepository não foi criado.");
         }
 
-        Instant now = clock.instant();
-
-        Window w =
-                counters.compute(
-                        key,
-                        (k, existing) -> {
-                            if (existing == null) {
-                                return new Window(now, 0);
-                            }
-
-                            if (Duration.between(existing.windowStart, now).compareTo(window) >= 0) {
-                                existing.windowStart = now;
-                                existing.count = 0;
-                            }
-                            return existing;
-                        });
-
-        synchronized (w) {
-            // revalidar dentro do lock do objeto
-            if (Duration.between(w.windowStart, now).compareTo(window) >= 0) {
-                w.windowStart = now;
-                w.count = 0;
-            }
-
-            if (w.count >= maxRequests) {
-                long retryAfterSeconds = Math.max(1, window.minus(Duration.between(w.windowStart, now)).toSeconds());
-                return RateLimitResult.block(retryAfterSeconds);
-            }
-
-            w.count++;
-            return RateLimitResult.allow();
+        var r = redisRepository.consume(key, window);
+        if (r.current() > maxRequests) {
+            long retryAfterSeconds = r.ttlSeconds() == null ? 1 : Math.max(1, r.ttlSeconds());
+            return RateLimitResult.block(retryAfterSeconds);
         }
+        return RateLimitResult.allow();
     }
 
     public record RateLimitResult(boolean allowed, Long retryAfterSeconds) {

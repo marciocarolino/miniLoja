@@ -15,10 +15,58 @@ import org.junit.jupiter.api.Test;
 
 class RateLimitServiceTest {
 
+    private static RateLimitRedisRepository redisStubRepo(Clock clock) {
+        // Fake mínimo de Redis com INCR/EXPIRE/TTL em memória,
+        // suficiente para validar a regra de negócio sem depender de Redis real no unit test.
+        class State {
+            long current = 0L;
+            Instant expiresAt = null;
+        }
+
+        java.util.Map<String, State> store = new java.util.concurrent.ConcurrentHashMap<>();
+
+        RedisRateLimitClient stub =
+                new RedisRateLimitClient() {
+                    @Override
+                    public Long incr(String key) {
+                        State s = store.computeIfAbsent(key, k -> new State());
+                        Instant now = clock.instant();
+
+                        if (s.expiresAt != null && now.isAfter(s.expiresAt)) {
+                            // janela expirada: reset
+                            s.current = 0L;
+                            s.expiresAt = null;
+                        }
+
+                        s.current++;
+                        return s.current;
+                    }
+
+                    @Override
+                    public Boolean expire(String key, Duration window) {
+                        State s = store.computeIfAbsent(key, k -> new State());
+                        s.expiresAt = clock.instant().plus(window);
+                        return true;
+                    }
+
+                    @Override
+                    public Long ttlSeconds(String key) {
+                        State s = store.get(key);
+                        if (s == null || s.expiresAt == null) {
+                            return -1L;
+                        }
+                        long seconds = Duration.between(clock.instant(), s.expiresAt).toSeconds();
+                        return Math.max(0L, seconds);
+                    }
+                };
+
+        return new RateLimitRedisRepository(stub);
+    }
+
     @Test
     void shouldAllowUpToLimitThenBlockWithinSameWindow_loginByIp() {
         Clock fixed = Clock.fixed(Instant.parse("2026-09-23T12:00:00Z"), ZoneOffset.UTC);
-        RateLimitService service = new RateLimitService(fixed);
+        RateLimitService service = new RateLimitService(fixed, redisStubRepo(fixed));
 
         Duration window = Duration.ofMinutes(1);
 
@@ -60,7 +108,7 @@ class RateLimitServiceTest {
         }
 
         MutableClock clock = new MutableClock();
-        RateLimitService service = new RateLimitService(clock);
+        RateLimitService service = new RateLimitService(clock, redisStubRepo(clock));
 
         Duration window = Duration.ofMinutes(1);
 
