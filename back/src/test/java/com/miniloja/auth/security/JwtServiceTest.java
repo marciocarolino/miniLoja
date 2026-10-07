@@ -46,16 +46,20 @@ class JwtServiceTest {
     }
 
     @Test
-    void shouldFallbackToDefaultSecretInDevOrTestWhenNotConfigured() {
+    void shouldFallbackToEphemeralSecretInDevOrTestWhenNotConfigured() {
         JwtService jwtDev = new JwtService("", "dev");
         JwtService jwtTest = new JwtService("", "test");
 
         String tokenDev = jwtDev.generateToken("user@example.com");
         String tokenTest = jwtTest.generateToken("user@example.com");
 
-        // se ambos usam o mesmo default, o token deve ser validável entre eles
-        assertTrue(jwtDev.validateAndGetSubject(tokenTest).isPresent());
-        assertTrue(jwtTest.validateAndGetSubject(tokenDev).isPresent());
+        // fallback agora é um secret efêmero por instância (evita hardcode no repo).
+        // Logo, o token deve ser validável apenas dentro da mesma instância.
+        assertTrue(jwtDev.validateAndGetSubject(tokenDev).isPresent());
+        assertTrue(jwtTest.validateAndGetSubject(tokenTest).isPresent());
+
+        assertTrue(jwtDev.validateAndGetSubject(tokenTest).isEmpty());
+        assertTrue(jwtTest.validateAndGetSubject(tokenDev).isEmpty());
     }
 
     @Test

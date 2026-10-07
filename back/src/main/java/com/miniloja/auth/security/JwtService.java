@@ -3,17 +3,22 @@ package com.miniloja.auth.security;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Optional;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     private static final String HMAC_ALG = "HmacSHA256";
     private static final Duration DEFAULT_TTL = Duration.ofHours(2);
@@ -38,10 +43,17 @@ public class JwtService {
         boolean devOrTest = profiles.contains("dev") || profiles.contains("test") || profiles.isBlank();
 
         if (devOrTest) {
-            this.secret = "miniloja-dev-secret-change-me";
+            this.secret = generateEphemeralDevSecret();
+            log.warn("miniloja.jwt.secret não configurado. Usando secret efêmero gerado em runtime (apenas dev/test).");
         } else {
             throw new IllegalStateException("JWT secret não configurado. Defina 'miniloja.jwt.secret' no ambiente.");
         }
+    }
+
+    private static String generateEphemeralDevSecret() {
+        byte[] bytes = new byte[48]; // 384 bits
+        new SecureRandom().nextBytes(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     public String generateToken(String subject) {
